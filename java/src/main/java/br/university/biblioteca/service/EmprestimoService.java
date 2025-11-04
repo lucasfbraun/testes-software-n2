@@ -86,4 +86,20 @@ public class EmprestimoService {
             .filter(e -> e.getDataDevolucao() == null)
             .count();
     }
+
+    public void devolverEmprestimo(Long emprestimoId) {
+        Emprestimo emprestimo = repository.buscarPorId(emprestimoId)
+            .orElseThrow(() -> new IllegalArgumentException("Emprestimo nao encontrado"));
+
+        if (emprestimo.getDataDevolucao() != null) {
+            throw new IllegalStateException("Emprestimo ja foi devolvido");
+        }
+
+        emprestimo.setDataDevolucao(relogio.now());
+
+        double multa = calcularMulta(emprestimo);
+        emprestimo.setMulta(multa);
+
+        repository.salvar(emprestimo);
+    }
 }

@@ -139,4 +139,47 @@ class EmprestimoServiceTest {
 
         assertThrows(IllegalStateException.class, () -> service.criarEmprestimo(usuario, livro, 7));
     }
+
+    @Test
+    void deveDevolverEmprestimoComSucesso() {
+        Emprestimo emprestimo = service.criarEmprestimo(usuario, livro, 7);
+        Long emprestimoId = emprestimo.getId();
+
+        service.devolverEmprestimo(emprestimoId);
+
+        Emprestimo devolvido = repository.buscarPorId(emprestimoId).orElseThrow();
+        assertNotNull(devolvido.getDataDevolucao());
+        assertEquals(hoje, devolvido.getDataDevolucao());
+        assertEquals(0.0, devolvido.getMulta());
+    }
+
+    @Test
+    void deveAplicarMultaAoDevolverEmprestimoAtrasado() {
+        Emprestimo emprestimo = service.criarEmprestimo(usuario, livro, 7);
+        Long emprestimoId = emprestimo.getId();
+        
+        relogio.avancarDias(10);
+
+        service.devolverEmprestimo(emprestimoId);
+
+        Emprestimo devolvido = repository.buscarPorId(emprestimoId).orElseThrow();
+        assertNotNull(devolvido.getDataDevolucao());
+        assertEquals(hoje.plusDays(10), devolvido.getDataDevolucao());
+        assertEquals(0.06, devolvido.getMulta(), 0.001);
+    }
+
+    @Test
+    void deveLancarExcecaoAoDevolverEmprestimoInexistente() {
+        assertThrows(IllegalArgumentException.class, () -> service.devolverEmprestimo(999L));
+    }
+
+    @Test
+    void deveLancarExcecaoAoDevolverEmprestimoJaDevolvido() {
+        Emprestimo emprestimo = service.criarEmprestimo(usuario, livro, 7);
+        Long emprestimoId = emprestimo.getId();
+        
+        service.devolverEmprestimo(emprestimoId);
+
+        assertThrows(IllegalStateException.class, () -> service.devolverEmprestimo(emprestimoId));
+    }
 }
