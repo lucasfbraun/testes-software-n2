@@ -3,7 +3,9 @@ package br.university.biblioteca.service;
 import br.university.biblioteca.model.Emprestimo;
 import br.university.biblioteca.model.Livro;
 import br.university.biblioteca.model.Usuario;
+import br.university.biblioteca.repository.InMemoryEmprestimoRepository;
 import br.university.biblioteca.stub.RelogioStub;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class EmprestimoServiceTest {
     private EmprestimoService service;
     private RelogioStub relogio;
+    private InMemoryEmprestimoRepository repository;
     private Livro livro;
     private Usuario usuario;
     private LocalDate hoje;
@@ -24,9 +27,15 @@ class EmprestimoServiceTest {
     void setUp() {
         hoje = LocalDate.of(2024, 11, 10);
         relogio = new RelogioStub(hoje);
-        service = new EmprestimoService(relogio);
+        repository = new InMemoryEmprestimoRepository();
+        service = new EmprestimoService(relogio, repository);
         livro = new Livro(1L, "Clean Code", 2.0);
         usuario = new Usuario(1L, "Lucas");
+    }
+
+    @AfterEach
+    void tearDown() {
+        repository.limpar();
     }
 
     @ParameterizedTest
@@ -77,5 +86,57 @@ class EmprestimoServiceTest {
     void deveLancarExcecaoSeLivroNulo() {
         Emprestimo emprestimo = new Emprestimo(1L, null, usuario, hoje.minusDays(7), hoje);
         assertThrows(IllegalArgumentException.class, () -> service.calcularMulta(emprestimo));
+    }
+
+    @Test
+    void deveCriarEmprestimoComSucesso() {
+        Emprestimo emprestimo = service.criarEmprestimo(usuario, livro, 7);
+
+        assertNotNull(emprestimo);
+        assertNotNull(emprestimo.getId());
+        assertEquals(usuario, emprestimo.getUsuario());
+        assertEquals(livro, emprestimo.getLivro());
+        assertEquals(hoje, emprestimo.getDataEmprestimo());
+        assertEquals(hoje.plusDays(7), emprestimo.getDataPrevistaDevolucao());
+        assertNull(emprestimo.getDataDevolucao());
+        assertEquals(0.0, emprestimo.getMulta());
+    }
+
+    @Test
+    void deveLancarExcecaoAoCriarEmprestimoComUsuarioNulo() {
+        assertThrows(IllegalArgumentException.class, () -> service.criarEmprestimo(null, livro, 7));
+    }
+
+    @Test
+    void deveLancarExcecaoAoCriarEmprestimoComLivroNulo() {
+        assertThrows(IllegalArgumentException.class, () -> service.criarEmprestimo(usuario, null, 7));
+    }
+
+    @Test
+    void deveLancarExcecaoAoCriarEmprestimoComDiasInvalidos() {
+        assertThrows(IllegalArgumentException.class, () -> service.criarEmprestimo(usuario, livro, 0));
+        assertThrows(IllegalArgumentException.class, () -> service.criarEmprestimo(usuario, livro, -1));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "1, 1",
+        "2, 2",
+        "3, 3"
+    })
+    void devePermitirCriarAteOLimiteDeEmprestimos(int quantidade, int esperado) {
+        for (int i = 0; i < quantidade; i++) {
+            service.criarEmprestimo(usuario, livro, 7);
+        }
+        assertEquals(esperado, repository.buscarTodos().size());
+    }
+
+    @Test
+    void deveLancarExcecaoAoExcederLimiteDeEmprestimosPorUsuario() {
+        service.criarEmprestimo(usuario, livro, 7);
+        service.criarEmprestimo(usuario, livro, 7);
+        service.criarEmprestimo(usuario, livro, 7);
+
+        assertThrows(IllegalStateException.class, () -> service.criarEmprestimo(usuario, livro, 7));
     }
 }

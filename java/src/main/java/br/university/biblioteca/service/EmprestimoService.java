@@ -1,6 +1,9 @@
 package br.university.biblioteca.service;
 
 import br.university.biblioteca.model.Emprestimo;
+import br.university.biblioteca.model.Livro;
+import br.university.biblioteca.model.Usuario;
+import br.university.biblioteca.port.EmprestimoRepository;
 import br.university.biblioteca.port.Relogio;
 
 import java.time.temporal.ChronoUnit;
@@ -8,11 +11,14 @@ import java.time.temporal.ChronoUnit;
 public class EmprestimoService {
     private static final double TAXA_MULTA_DIARIA = 0.01;
     private static final double PERCENTUAL_MULTA_MAXIMA = 0.30;
+    private static final int LIMITE_EMPRESTIMOS_POR_USUARIO = 3;
 
     private final Relogio relogio;
+    private final EmprestimoRepository repository;
 
-    public EmprestimoService(Relogio relogio) {
+    public EmprestimoService(Relogio relogio, EmprestimoRepository repository) {
         this.relogio = relogio;
+        this.repository = repository;
     }
 
     public double calcularMulta(Emprestimo emprestimo) {
@@ -44,5 +50,40 @@ public class EmprestimoService {
             emprestimo.getDataPrevistaDevolucao(),
             relogio.now()
         );
+    }
+
+    public Emprestimo criarEmprestimo(Usuario usuario, Livro livro, int diasEmprestimo) {
+        if (usuario == null) {
+            throw new IllegalArgumentException("Usuario nao pode ser nulo");
+        }
+        if (livro == null) {
+            throw new IllegalArgumentException("Livro nao pode ser nulo");
+        }
+        if (diasEmprestimo <= 0) {
+            throw new IllegalArgumentException("Dias de emprestimo deve ser maior que zero");
+        }
+
+        long emprestimosAtivos = contarEmprestimosAtivos(usuario);
+        if (emprestimosAtivos >= LIMITE_EMPRESTIMOS_POR_USUARIO) {
+            throw new IllegalStateException("Usuario atingiu o limite de emprestimos");
+        }
+
+        Emprestimo emprestimo = new Emprestimo(
+            null,
+            livro,
+            usuario,
+            relogio.now(),
+            relogio.now().plusDays(diasEmprestimo)
+        );
+
+        repository.salvar(emprestimo);
+        return emprestimo;
+    }
+
+    private long contarEmprestimosAtivos(Usuario usuario) {
+        return repository.buscarTodos().stream()
+            .filter(e -> e.getUsuario().getId().equals(usuario.getId()))
+            .filter(e -> e.getDataDevolucao() == null)
+            .count();
     }
 }
