@@ -1,8 +1,9 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 biblioteca,br.university.biblioteca.repository,InMemoryEmprestimoRepository,6,53,0,2,2,12,1,6,1,5
-biblioteca,br.university.biblioteca.service,EmprestimoService,1,236,1,23,0,62,1,23,0,12
-biblioteca,br.university.biblioteca.model,Usuario,14,12,0,0,6,5,4,2,4,2
+biblioteca,br.university.biblioteca.service,EmprestimoService,1,236,1,23,0,59,1,23,0,12
+biblioteca,br.university.biblioteca.service,VerificadorVencidos,1,62,1,5,1,17,1,4,0,2
+biblioteca,br.university.biblioteca.model,Usuario,11,15,0,0,5,6,3,3,3,3
 biblioteca,br.university.biblioteca.model,Emprestimo,15,58,0,0,7,23,4,12,4,12
-biblioteca,br.university.biblioteca.model,Livro,21,15,0,0,9,6,6,2,6,2
+biblioteca,br.university.biblioteca.model,Livro,18,18,0,0,8,7,5,3,5,3
 biblioteca,br.university.biblioteca,Main,4,0,0,0,2,0,2,0,2,0
 biblioteca,br.university.biblioteca.impl,RelogioSistema,5,0,0,0,2,0,2,0,2,0
