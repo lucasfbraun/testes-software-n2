@@ -1,0 +1,5 @@
+br\university\biblioteca\stub\RelogioStub.class
+br\university\biblioteca\PlaceholderTest.class
+br\university\biblioteca\service\EmprestimoServiceTest.class
+br\university\biblioteca\stub\EmailServiceStub$EmailEnviado.class
+br\university\biblioteca\stub\EmailServiceStub.class

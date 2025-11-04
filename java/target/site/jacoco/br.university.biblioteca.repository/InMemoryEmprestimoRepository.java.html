@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InMemoryEmprestimoRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">biblioteca</a> &gt; <a href="index.source.html" class="el_package">br.university.biblioteca.repository</a> &gt; <span class="el_source">InMemoryEmprestimoRepository.java</span></div><h1>InMemoryEmprestimoRepository.java</h1><pre class="source lang-java linenums">package br.university.biblioteca.repository;
+
+import br.university.biblioteca.model.Emprestimo;
+import br.university.biblioteca.port.EmprestimoRepository;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
+
+<span class="fc" id="L13">public class InMemoryEmprestimoRepository implements EmprestimoRepository {</span>
+<span class="fc" id="L14">    private final Map&lt;Long, Emprestimo&gt; emprestimos = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L15">    private final AtomicLong idGenerator = new AtomicLong(1);</span>
+
+    @Override
+    public void salvar(Emprestimo emprestimo) {
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        if (emprestimo.getId() == null) {</span>
+<span class="fc" id="L20">            emprestimo.setId(idGenerator.getAndIncrement());</span>
+        }
+<span class="fc" id="L22">        emprestimos.put(emprestimo.getId(), emprestimo);</span>
+<span class="fc" id="L23">    }</span>
+
+    @Override
+    public Optional&lt;Emprestimo&gt; buscarPorId(Long id) {
+<span class="fc" id="L27">        return Optional.ofNullable(emprestimos.get(id));</span>
+    }
+
+    @Override
+    public List&lt;Emprestimo&gt; buscarTodos() {
+<span class="fc" id="L32">        return new ArrayList&lt;&gt;(emprestimos.values());</span>
+    }
+
+    @Override
+    public void deletar(Long id) {
+<span class="nc" id="L37">        emprestimos.remove(id);</span>
+<span class="nc" id="L38">    }</span>
+
+    public void limpar() {
+<span class="fc" id="L41">        emprestimos.clear();</span>
+<span class="fc" id="L42">        idGenerator.set(1);</span>
+<span class="fc" id="L43">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

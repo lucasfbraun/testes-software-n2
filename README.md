@@ -24,3 +24,8 @@ Ferramentas e bibliotecas do setup e por que são importantes
 •	JaCoCo (plugin Maven)
     o	Mede cobertura de linhas e ramos e gera relatórios HTML/XML, atendendo a meta de cobertura e ao CI.
 
+
+para gerar o teste em html:
+mvn -f java/pom.xml test
+start java/target/site/jacoco/index.html
+
