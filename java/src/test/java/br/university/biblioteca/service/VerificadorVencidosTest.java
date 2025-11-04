@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,5 +78,21 @@ class VerificadorVencidosTest {
         Emprestimo salvo = repository.buscarPorId(e.getId()).orElseThrow();
         assertEquals(multaEsperada, salvo.getMulta(), 0.001);
         assertEquals(1, emailStub.quantidadeEnviados());
+    }
+
+    @Test
+    void deveProcessarLoteEmMenosDe500ms() {
+        for (int i = 0; i < 100; i++) {
+            Usuario u = new Usuario((long) i, "Usuario" + i);
+            Livro l = new Livro((long) i, "Livro" + i, 2.0);
+            emprestimoService.criarEmprestimo(u, l, 7);
+        }
+        relogio.avancarDias(10);
+
+        assertTimeout(Duration.ofMillis(500), () -> {
+            verificador.processarVencidos();
+        });
+
+        assertEquals(100, emailStub.quantidadeEnviados());
     }
 }

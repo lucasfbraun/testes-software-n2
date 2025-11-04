@@ -35,3 +35,12 @@ Esse comando compila o código, roda os 19 testes implementados e gera automatic
 
 Segundo: start java/target/site/jacoco/index.html
 Esse comando abre o relatório de cobertura no navegador, mostrando visualmente quais linhas e branches do código foram testadas, com porcentagens 
+
+Mockito é uma biblioteca Java para criar objetos falsos (mocks/stubs) que imitam dependências em testes.
+
+O que é Stub (em poucas palavras)
+Stub é um objeto falso que retorna valores pré-definidos para simular o comportamento de uma dependência real nos testes.
+
+ o	Objeto falso que retorna valores pré-definidos para simular dependências.
+    o	Exemplo: RelogioStub permite controlar datas nos testes sem depender do relógio do sistema.
+    o	Diferença para Mock: stub retorna valores; mock verifica chamadas de métodos.
