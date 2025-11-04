@@ -182,4 +182,50 @@ class EmprestimoServiceTest {
 
         assertThrows(IllegalStateException.class, () -> service.devolverEmprestimo(emprestimoId));
     }
+
+    @Test
+    void deveEstenderEmprestimoComSucesso() {
+        Emprestimo emprestimo = service.criarEmprestimo(usuario, livro, 7);
+        Long emprestimoId = emprestimo.getId();
+        LocalDate dataPrevistaOriginal = emprestimo.getDataPrevistaDevolucao();
+
+        service.estenderEmprestimo(emprestimoId, 5);
+
+        Emprestimo estendido = repository.buscarPorId(emprestimoId).orElseThrow();
+        assertEquals(dataPrevistaOriginal.plusDays(5), estendido.getDataPrevistaDevolucao());
+    }
+
+    @Test
+    void deveLancarExcecaoAoEstenderEmprestimoVencido() {
+        Emprestimo emprestimo = service.criarEmprestimo(usuario, livro, 7);
+        Long emprestimoId = emprestimo.getId();
+        
+        relogio.avancarDias(10);
+
+        assertThrows(IllegalStateException.class, () -> service.estenderEmprestimo(emprestimoId, 5));
+    }
+
+    @Test
+    void deveLancarExcecaoAoEstenderEmprestimoInexistente() {
+        assertThrows(IllegalArgumentException.class, () -> service.estenderEmprestimo(999L, 5));
+    }
+
+    @Test
+    void deveLancarExcecaoAoEstenderEmprestimoJaDevolvido() {
+        Emprestimo emprestimo = service.criarEmprestimo(usuario, livro, 7);
+        Long emprestimoId = emprestimo.getId();
+        
+        service.devolverEmprestimo(emprestimoId);
+
+        assertThrows(IllegalStateException.class, () -> service.estenderEmprestimo(emprestimoId, 5));
+    }
+
+    @Test
+    void deveLancarExcecaoAoEstenderComDiasInvalidos() {
+        Emprestimo emprestimo = service.criarEmprestimo(usuario, livro, 7);
+        Long emprestimoId = emprestimo.getId();
+
+        assertThrows(IllegalArgumentException.class, () -> service.estenderEmprestimo(emprestimoId, 0));
+        assertThrows(IllegalArgumentException.class, () -> service.estenderEmprestimo(emprestimoId, -1));
+    }
 }

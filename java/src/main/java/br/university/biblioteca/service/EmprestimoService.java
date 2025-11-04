@@ -102,4 +102,25 @@ public class EmprestimoService {
 
         repository.salvar(emprestimo);
     }
+
+    public void estenderEmprestimo(Long emprestimoId, int dias) {
+        if (dias <= 0) {
+            throw new IllegalArgumentException("Dias deve ser maior que zero");
+        }
+
+        Emprestimo emprestimo = repository.buscarPorId(emprestimoId)
+            .orElseThrow(() -> new IllegalArgumentException("Emprestimo nao encontrado"));
+
+        if (emprestimo.getDataDevolucao() != null) {
+            throw new IllegalStateException("Nao e possivel estender emprestimo ja devolvido");
+        }
+
+        long diasAtraso = calcularDiasAtraso(emprestimo);
+        if (diasAtraso > 0) {
+            throw new IllegalStateException("Nao e possivel estender emprestimo vencido");
+        }
+
+        emprestimo.setDataPrevistaDevolucao(emprestimo.getDataPrevistaDevolucao().plusDays(dias));
+        repository.salvar(emprestimo);
+    }
 }

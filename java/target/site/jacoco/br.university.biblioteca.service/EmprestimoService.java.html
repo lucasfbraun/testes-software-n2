@@ -69,9 +69,9 @@ public class EmprestimoService {
         }
 
 <span class="fc" id="L71">        Emprestimo emprestimo = new Emprestimo(</span>
-            null,
-            livro,
-            usuario,
+<span class="fc" id="L72">            null,</span>
+<span class="fc" id="L73">            livro,</span>
+<span class="fc" id="L74">            usuario,</span>
 <span class="fc" id="L75">            relogio.now(),</span>
 <span class="fc" id="L76">            relogio.now().plusDays(diasEmprestimo)</span>
         );
@@ -102,5 +102,26 @@ public class EmprestimoService {
 
 <span class="fc" id="L103">        repository.salvar(emprestimo);</span>
 <span class="fc" id="L104">    }</span>
+
+    public void estenderEmprestimo(Long emprestimoId, int dias) {
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        if (dias &lt;= 0) {</span>
+<span class="fc" id="L108">            throw new IllegalArgumentException(&quot;Dias deve ser maior que zero&quot;);</span>
+        }
+
+<span class="fc" id="L111">        Emprestimo emprestimo = repository.buscarPorId(emprestimoId)</span>
+<span class="fc" id="L112">            .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Emprestimo nao encontrado&quot;));</span>
+
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (emprestimo.getDataDevolucao() != null) {</span>
+<span class="fc" id="L115">            throw new IllegalStateException(&quot;Nao e possivel estender emprestimo ja devolvido&quot;);</span>
+        }
+
+<span class="fc" id="L118">        long diasAtraso = calcularDiasAtraso(emprestimo);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (diasAtraso &gt; 0) {</span>
+<span class="fc" id="L120">            throw new IllegalStateException(&quot;Nao e possivel estender emprestimo vencido&quot;);</span>
+        }
+
+<span class="fc" id="L123">        emprestimo.setDataPrevistaDevolucao(emprestimo.getDataPrevistaDevolucao().plusDays(dias));</span>
+<span class="fc" id="L124">        repository.salvar(emprestimo);</span>
+<span class="fc" id="L125">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

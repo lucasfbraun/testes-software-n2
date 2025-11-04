@@ -24,8 +24,14 @@ Ferramentas e bibliotecas do setup e por que são importantes
 •	JaCoCo (plugin Maven)
     o	Mede cobertura de linhas e ramos e gera relatórios HTML/XML, atendendo a meta de cobertura e ao CI.
 
+O pom.xml é o arquivo de configuração do Maven que define:
 
 para gerar o teste em html:
 mvn -f java/pom.xml test
 start java/target/site/jacoco/index.html
 
+Primeiro: mvn -f [pom.xml](http://_vscodecontentref_/0) test
+Esse comando compila o código, roda os 19 testes implementados e gera automaticamente um relatório de cobertura usando o JaCoCo.
+
+Segundo: start java/target/site/jacoco/index.html
+Esse comando abre o relatório de cobertura no navegador, mostrando visualmente quais linhas e branches do código foram testadas, com porcentagens 
